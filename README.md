@@ -34,6 +34,7 @@ Una interfaz gráfica para controlar cada capa de privacidad, monitorear activid
 - **Tor**: Ruta todo el tráfico TCP a través de la red Tor mediante proxy transparente. Tu IP real permanece oculta.
 - **DNSCrypt**: Encripta y autentica todas las consultas DNS para que tu ISP no pueda ver qué dominios resuelves.
 - **I2P**: Conecta a la red anónima I2P via i2pd. Útil para acceder a servicios internos (.i2p).
+- **Block**: Bloquea sitios web no deseados con protección por contraseña.
 
 Puedes habilitar cualquier combinación. Al presionar Conectar, la aplicación aplica reglas de firewall (nftables o iptables) e inicia los servicios seleccionados. Al presionar Desconectar, todo se revierte y el tráfico fluye normalmente.
 
