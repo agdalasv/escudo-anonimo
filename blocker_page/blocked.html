@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sitio Bloqueado - Escudo Anónimo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: #0a0a0f;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .block-card {
+            background: rgba(10, 10, 20, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 255, 170, 0.2);
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 500px;
+            box-shadow: 
+                0 0 60px rgba(0, 255, 170, 0.1),
+                inset 0 0 60px rgba(0, 255, 170, 0.02);
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 
+                    0 0 60px rgba(0, 255, 170, 0.1),
+                    inset 0 0 60px rgba(0, 255, 170, 0.02);
+            }
+            50% {
+                box-shadow: 
+                    0 0 80px rgba(0, 255, 170, 0.2),
+                    inset 0 0 80px rgba(0, 255, 170, 0.05);
+            }
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo-shield {
+            width: 120px;
+            height: 120px;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #00ffaa;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 20px rgba(0, 255, 170, 0.5);
+        }
+
+        .subtitle {
+            color: #8892a0;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            margin-bottom: 2rem;
+        }
+
+        .warning-icon {
+            font-size: 3rem;
+            color: #ff6b6b;
+            margin-bottom: 1rem;
+            animation: shake 2s ease-in-out infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-5deg); }
+            75% { transform: rotate(5deg); }
+        }
+
+        .message {
+            color: #c8d0da;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .contact-info {
+            background: rgba(0, 255, 170, 0.05);
+            border: 1px solid rgba(0, 255, 170, 0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .contact-info p {
+            color: #00ffaa;
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 170, 0.3), transparent);
+            margin: 1.5rem 0;
+        }
+
+        .unlock-section {
+            text-align: center;
+        }
+
+        .unlock-title {
+            color: #8892a0;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .password-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 170, 0.2);
+            border-radius: 10px;
+            padding: 0.8rem 1rem;
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .password-input:focus {
+            outline: none;
+            border-color: #00ffaa;
+            box-shadow: 0 0 20px rgba(0, 255, 170, 0.2);
+        }
+
+        .password-input::placeholder {
+            color: #505a66;
+        }
+
+        .unlock-btn {
+            background: linear-gradient(135deg, #00ffaa 0%, #00cc88 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 0.8rem 2rem;
+            color: #0a0a0f;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+            width: 100%;
+            text-transform: uppercase;
+        }
+
+        .unlock-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 170, 0.3);
+        }
+
+        .unlock-btn:active {
+            transform: translateY(0);
+        }
+
+        .error-msg {
+            color: #ff6b6b;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            display: none;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .error-msg.show {
+            display: block;
+        }
+
+        .success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 255, 170, 0.1);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .success-overlay.show {
+            display: flex;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .success-content {
+            text-align: center;
+            color: #00ffaa;
+        }
+
+        .success-icon {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            animation: scaleIn 0.5s ease;
+        }
+
+        @keyframes scaleIn {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .blocked-url {
+            color: #ff6b6b;
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(255, 107, 107, 0.1);
+            padding: 0.3rem 0.6rem;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="particles-canvas"></canvas>
+
+    <div class="container">
+        <div class="block-card">
+            <div class="logo-container">
+                <svg class="logo-shield" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#00ffaa"/>
+                            <stop offset="100%" style="stop-color:#008866"/>
+                        </linearGradient>
+                        <linearGradient id="innerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#00cc88"/>
+                            <stop offset="100%" style="stop-color:#004433"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M50 5 L95 20 V50 C95 75 75 95 50 100 C25 95 5 75 5 50 V20 L50 5Z" 
+                          fill="url(#shieldGrad)" stroke="#00ffaa" stroke-width="2"/>
+                    <path d="M50 20 L80 30 V55 C80 72 65 88 50 92 C35 88 20 72 20 55 V30 L50 20Z" 
+                          fill="url(#innerGrad)"/>
+                    <circle cx="50" cy="50" r="15" fill="none" stroke="#00ffaa" stroke-width="2" opacity="0.8"/>
+                    <path d="M42 50 L48 56 L58 44" stroke="#00ffaa" stroke-width="3" stroke-linecap="round" 
+                          stroke-linejoin="round" fill="none"/>
+                </svg>
+            </div>
+
+            <h1 class="title">Sitio Bloqueado</h1>
+            <p class="subtitle">ESCUDO ANÓNIMO</p>
+
+            <div class="warning-icon">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+
+            <p class="message">
+                Este sitio ha sido bloqueado por el administrador de red.<br>
+                <span id="blocked-url" class="blocked-url"></span>
+            </p>
+
+            <div class="contact-info">
+                <p><i class="fas fa-user-shield me-2"></i>Contacte al administrador para obtener acceso</p>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="unlock-section">
+                <p class="unlock-title">¿Tiene la contraseña de desbloqueo?</p>
+                <input type="password" id="unlockPassword" class="password-input" 
+                       placeholder="Ingrese la contraseña...">
+                <button class="unlock-btn" onclick="tryUnlock()">
+                    <i class="fas fa-unlock-alt me-2"></i>Desbloquear
+                </button>
+                <p id="errorMsg" class="error-msg">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Contraseña incorrecta
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="success-overlay" id="successOverlay">
+        <div class="success-content">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2 style="font-family: 'Orbitron', sans-serif;">¡Desbloqueado!</h2>
+            <p>Redirigiendo...</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Mostrar URL bloqueada
+        const urlParams = new URLSearchParams(window.location.search);
+        const blockedSite = urlParams.get('site') || 'este sitio';
+        document.getElementById('blocked-url').textContent = blockedSite;
+
+        // Efecto de partículas
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let particles = [];
+        const particleCount = 100;
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.speedY = (Math.random() - 0.5) * 0.5;
+                this.opacity = Math.random() * 0.5 + 0.2;
+                this.color = Math.random() > 0.5 ? '#00ffaa' : '#008866';
+            }
+            
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                
+                if (this.x < 0 || this.x > canvas.width || 
+                    this.y < 0 || this.y > canvas.height) {
+                    this.reset();
+                }
+            }
+            
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.globalAlpha = this.opacity;
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        // Conexiones entre partículas
+        function drawConnections() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 150) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = '#00ffaa';
+                        ctx.globalAlpha = (1 - distance / 150) * 0.2;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                        ctx.globalAlpha = 1;
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            
+            drawConnections();
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        // Intentar desbloqueo
+        function tryUnlock() {
+            const password = document.getElementById('unlockPassword').value;
+            const errorMsg = document.getElementById('errorMsg');
+            const blockedSite = document.getElementById('blocked-url').textContent || 'localhost';
+            
+            // Enviar al servidor local para verificar
+            fetch('/unlock', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({password: password, site: blockedSite})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('successOverlay').classList.add('show');
+                    setTimeout(() => {
+                        window.location.href = data.redirect || '/';
+                    }, 1500);
+                } else {
+                    errorMsg.classList.add('show');
+                    setTimeout(() => errorMsg.classList.remove('show'), 3000);
+                }
+            })
+            .catch(() => {
+                // Si no hay servidor, simular desbloqueo (para demo)
+                if (password === 'admin123') {
+                    document.getElementById('successOverlay').classList.add('show');
+                } else {
+                    errorMsg.classList.add('show');
+                    setTimeout(() => errorMsg.classList.remove('show'), 3000);
+                }
+            });
+        }
+
+        // Permitir enter en el input
+        document.getElementById('unlockPassword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                tryUnlock();
+            }
+        });
+    </script>
+</body>
+</html>

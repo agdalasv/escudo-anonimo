@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escudo Anónimo - Descarga</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            text-align: center;
+        }
+        img { width: 120px; margin-bottom: 20px; }
+        h1 { font-size: 2.5em; margin-bottom: 10px; color: #7eb8ff; }
+        p { font-size: 1.1em; color: #aaa; margin-bottom: 30px; line-height: 1.6; }
+        .btn {
+            display: inline-block;
+            background: #4bba7e;
+            color: #fff;
+            padding: 15px 40px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 1.2em;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(75,186,126,0.3);
+        }
+        .features {
+            margin-top: 40px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .feature {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .feature h3 { color: #7eb8ff; margin-bottom: 5px; }
+        .feature p { font-size: 0.9em; margin: 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="logos/entropy-logo.png" alt="Escudo Anónimo">
+        <h1>Escudo Anónimo</h1>
+        <p>Aplicación de privacidad para Linux que rutea tu tráfico a través de Tor, DNSCrypt e I2P. Con bloqueador de sitios web integrado.</p>
+        <a class="btn" href="archive/refs/heads/main.zip" download>📥 Descargar Código</a>
+        
+        <div class="features">
+            <div class="feature">
+                <h3>🧅 Tor</h3>
+                <p>Enrutamiento anónimo</p>
+            </div>
+            <div class="feature">
+                <h3>🔐 DNSCrypt</h3>
+                <p>DNS encriptado</p>
+            </div>
+            <div class="feature">
+                <h3>🌐 I2P</h3>
+                <p>Red anónima</p>
+            </div>
+            <div class="feature">
+                <h3>🚫 Block</h3>
+                <p>Bloquea sitios</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

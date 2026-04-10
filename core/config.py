@@ -2,7 +2,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-_DIR  = Path.home() / ".config" / "entropy-shield"
+_DIR  = Path.home() / ".config" / "escudo-anonimo"
 _FILE = _DIR / "config.json"
 
 _DEFAULTS: dict = {
@@ -15,7 +15,7 @@ _DEFAULTS: dict = {
         "strict_nodes": False,
     },
     "dnscrypt": {
-        "port":              5353,
+        "port":              53,
         "require_dnssec":    False,
         "require_nolog":     True,
         "require_nofilter":  True,
@@ -24,6 +24,11 @@ _DEFAULTS: dict = {
         "http_port":     4444,
         "socks_port":    4447,
         "max_bandwidth": 0,
+    },
+    "blocker": {
+        "enabled":     False,
+        "sites":       [],
+        "password":    "",
     },
 }
 

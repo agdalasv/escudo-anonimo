@@ -42,7 +42,7 @@ def main() -> None:
     from gui.main_window import MainWindow
 
     app = QApplication(sys.argv)
-    app.setApplicationName("Entropy Shield")
+    app.setApplicationName("Escudo Anónimo")
 
     w = MainWindow()
     w.show()

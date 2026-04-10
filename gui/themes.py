@@ -104,6 +104,12 @@ QLabel#appTitle {{
     letter-spacing: 4px;
     background: transparent;
 }}
+QLabel#poweredLbl {{
+    font-size: 9px;
+    color: {c['text_dim']};
+    background: transparent;
+    letter-spacing: 1px;
+}}
 QLabel#logoLbl {{
     background: transparent;
     border: none;
@@ -293,6 +299,64 @@ QSpinBox, QLineEdit {{
 QSpinBox:focus, QLineEdit:focus {{ border-color: {c['blue']}; }}
 QSpinBox::up-button, QSpinBox::down-button {{
     background: transparent; border: none; width: 16px;
+}}
+QLineEdit#btcInput {{
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: 10px;
+    color: {c['text_muted']};
+}}
+QPushButton#copyBtn {{
+    background: {c['section_bg']};
+    border: 1px solid {c['border_soft']};
+    border-radius: 8px;
+    color: {c['text_dim']};
+    font-size: 12px;
+    padding: 0;
+}}
+QPushButton#copyBtn:hover {{
+    background: {c['blue']};
+    color: #ffffff;
+    border-color: {c['blue']};
+}}
+
+/* ── blocker ── */
+QLineEdit#sitesInput {{
+    background-color: {c['input_bg']};
+    border: 1px solid {c['input_border']};
+    border-radius: 9px;
+    color: {c['text']};
+    padding: 5px 10px;
+    min-height: 28px;
+}}
+QPushButton#addSiteBtn {{
+    background: {c['section_bg']};
+    border: 1px solid {c['border_soft']};
+    border-radius: 8px;
+    color: {c['text_muted']};
+    font-size: 11px;
+    padding: 6px 12px;
+}}
+QPushButton#addSiteBtn:hover {{
+    border-color: {c['blue']};
+    color: {c['blue']};
+}}
+QTextEdit#sitesList {{
+    background-color: {c['input_bg']};
+    border: 1px solid {c['input_border']};
+    border-radius: 9px;
+    color: {c['text_dim']};
+    font-size: 10px;
+    padding: 8px;
+}}
+QPushButton#showPassBtn {{
+    background: {c['section_bg']};
+    border: 1px solid {c['border_soft']};
+    border-radius: 8px;
+    color: {c['text_dim']};
+    font-size: 11px;
+}}
+QPushButton#showPassBtn:hover {{
+    border-color: {c['blue']};
 }}
 
 /* ── tabs ── */

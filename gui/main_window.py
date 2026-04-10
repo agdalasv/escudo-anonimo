@@ -28,10 +28,10 @@ _LOGO_PATH = os.path.join(
 )
 
 _GLOW_COLORS = {
-    "off":        (210, 55,  48),
-    "connecting": (210, 153, 50),
-    "on":         (44,  186, 92),
-    "error":      (210, 55,  48),
+    "off":        (126, 181, 255),  # azul
+    "connecting": (255, 255, 255),  # blanco
+    "on":         (44,  186, 92),   # verde
+    "error":      (210, 55,  48),   # rojo
 }
 
 
@@ -123,7 +123,7 @@ class _GlowFrame(QWidget):
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Entropy Shield")
+        self.setWindowTitle("Escudo Anónimo")
 
         # Window icon → shows in taskbar / panel / alt-tab
         if os.path.exists(_LOGO_PATH):
@@ -151,7 +151,7 @@ class MainWindow(QMainWindow):
         self._settings = SettingsPanel(self._glow_frame)
         self._settings.saved.connect(self._on_settings_saved)
 
-        self._append_log("[>] Entropy Shield ready.")
+        self._append_log("[>] Escudo Anónimo listo.")
 
     # ── glow ──────────────────────────────────────────────────
 
@@ -183,7 +183,7 @@ class MainWindow(QMainWindow):
 
     def _on_settings_saved(self) -> None:
         self._apply_theme()
-        self._append_log(f"[>] Settings saved. Theme: {cfg().get('theme')}.")
+        self._append_log(f"[>] Ajustes guardados. Tema: {cfg().get('theme')}.")
 
     # ── build UI ──────────────────────────────────────────────
 
@@ -235,9 +235,14 @@ class MainWindow(QMainWindow):
             logo_lbl.setObjectName("logoLbl")
             lay.addWidget(logo_lbl)
 
-        title_lbl = QLabel("ENTROPY SHIELD")
+        title_lbl = QLabel("ESCUDO ANÓNIMO")
         title_lbl.setObjectName("appTitle")
         lay.addWidget(title_lbl)
+
+        powered_lbl = QLabel("Powered by Agdala 2026")
+        powered_lbl.setObjectName("poweredLbl")
+        lay.addWidget(powered_lbl)
+
         lay.addStretch()
 
         btn_settings = QPushButton("⚙")
@@ -258,11 +263,11 @@ class MainWindow(QMainWindow):
         self._status_ring.set_state("off")
         ring_row.addWidget(self._status_ring)
 
-        self._status_lbl = QLabel("DISCONNECTED")
+        self._status_lbl = QLabel("DESCONECTADO")
         self._status_lbl.setObjectName("statusTitle")
         self._status_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self._status_sub = QLabel("Select layers and connect")
+        self._status_sub = QLabel("Selecciona capas y conecta")
         self._status_sub.setObjectName("statusSub")
         self._status_sub.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -277,7 +282,8 @@ class MainWindow(QMainWindow):
         self._card_tor = ServiceCard("tor")
         self._card_dns = ServiceCard("dnscrypt")
         self._card_i2p = ServiceCard("i2p")
-        for card in (self._card_tor, self._card_dns, self._card_i2p):
+        self._card_blocker = ServiceCard("blocker")
+        for card in (self._card_tor, self._card_dns, self._card_i2p, self._card_blocker):
             card.settings_clicked.connect(self._open_settings_tab)
             row.addWidget(card)
         return row
@@ -288,7 +294,7 @@ class MainWindow(QMainWindow):
         lay.setContentsMargins(0, 0, 0, 0)
         lay.setSpacing(10)
 
-        self._connect_btn = QPushButton("CONNECT")
+        self._connect_btn = QPushButton("CONECTAR")
         self._connect_btn.setObjectName("connectBtn")
         self._connect_btn.setCheckable(True)
         self._connect_btn.setSizePolicy(
@@ -315,7 +321,7 @@ class MainWindow(QMainWindow):
         self._settings.open()
 
     def _open_settings_tab(self, tag: str) -> None:
-        tab_map = {"tor": 0, "dnscrypt": 1, "i2p": 2}
+        tab_map = {"tor": 0, "dnscrypt": 1, "i2p": 2, "blocker": 3}
         self._settings._tabs.setCurrentIndex(tab_map.get(tag, 0))
         self._open_settings()
 
@@ -348,9 +354,10 @@ class MainWindow(QMainWindow):
                 "use_tor":      self._card_tor.is_checked,
                 "use_dnscrypt": self._card_dns.is_checked,
                 "use_i2p":      self._card_i2p.is_checked,
+                "use_blocker":  self._card_blocker.is_checked,
             }
             if not any(layers.values()):
-                self._append_log("[!] Select at least one privacy layer.")
+                self._append_log("[!] Selecciona al menos una capa de privacidad.")
                 self._connect_btn.setChecked(False)
                 return
             self._active_layers = [
@@ -361,14 +368,14 @@ class MainWindow(QMainWindow):
     def _start_worker(self, action: str, layers: dict) -> None:
         self._connect_btn.setEnabled(False)
         self._connect_btn.setText(
-            "CONNECTING..." if action == "connect" else "DISCONNECTING...")
+            "CONECTANDO..." if action == "connect" else "DESCONECTANDO...")
         self._spinner.start()
         self._set_cards_enabled(False)
         self._set_glow("connecting")
 
         if action == "connect":
-            self._set_status("connecting", "CONNECTING...",
-                             "Routing through selected layers…")
+            self._set_status("connecting", "CONECTANDO...",
+                             "Enrutando a través de capas seleccionadas…")
             for card in self._active_cards():
                 card.set_status("connecting")
 
@@ -385,10 +392,10 @@ class MainWindow(QMainWindow):
         if success and info == "connect":
             self._connected = True
             self._connect_btn.setChecked(True)
-            self._connect_btn.setText("DISCONNECT")
+            self._connect_btn.setText("DESCONECTAR")
             self._set_glow("on")
             layers_str = "  ·  ".join(l.upper() for l in self._active_layers)
-            self._set_status("on", "PROTECTED", layers_str)
+            self._set_status("on", "PROTEGIDO", layers_str)
             for card in self._active_cards():
                 card.set_status("active")
 
@@ -396,9 +403,9 @@ class MainWindow(QMainWindow):
             self._connected = False
             self._active_layers = []
             self._connect_btn.setChecked(False)
-            self._connect_btn.setText("CONNECT")
+            self._connect_btn.setText("CONECTAR")
             self._set_glow("off")
-            self._set_status("off", "DISCONNECTED", "Select layers and connect")
+            self._set_status("off", "DESCONECTADO", "Selecciona capas y conecta")
             for card in (self._card_tor, self._card_dns, self._card_i2p):
                 card.set_status("")
 
@@ -406,7 +413,7 @@ class MainWindow(QMainWindow):
             self._connected = False
             self._active_layers = []
             self._connect_btn.setChecked(False)
-            self._connect_btn.setText("CONNECT")
+            self._connect_btn.setText("CONECTAR")
             self._set_glow("error")
             short = info[:70] if len(info) > 70 else info
             self._set_status("error", "ERROR", short)
@@ -417,11 +424,11 @@ class MainWindow(QMainWindow):
     # ── helpers ───────────────────────────────────────────────
 
     def _active_cards(self) -> list[ServiceCard]:
-        return [c for c in (self._card_tor, self._card_dns, self._card_i2p)
+        return [c for c in (self._card_tor, self._card_dns, self._card_i2p, self._card_blocker)
                 if c.is_checked]
 
     def _set_cards_enabled(self, enabled: bool) -> None:
-        for card in (self._card_tor, self._card_dns, self._card_i2p):
+        for card in (self._card_tor, self._card_dns, self._card_i2p, self._card_blocker):
             card.set_enabled_ui(enabled)
 
     def _append_log(self, msg: str) -> None:

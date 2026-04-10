@@ -3,6 +3,7 @@ from typing import Callable
 from .tor      import TorManager
 from .dnscrypt import DNSCryptManager
 from .i2p      import I2PManager
+from .blocker  import BlockerManager
 from .firewall import FirewallManager
 from .platform import is_nixos
 
@@ -13,11 +14,12 @@ class ConnectionManager:
         self._tor = TorManager(log)
         self._dns = DNSCryptManager(log)
         self._i2p = I2PManager(log)
+        self._blk = BlockerManager(log)
         self._fw  = FirewallManager(log)
         self._layers: dict[str, bool] = {}
 
-    def connect(self, use_tor: bool, use_dnscrypt: bool, use_i2p: bool) -> None:
-        if not (use_tor or use_dnscrypt or use_i2p):
+    def connect(self, use_tor: bool, use_dnscrypt: bool, use_i2p: bool, use_blocker: bool = False) -> None:
+        if not (use_tor or use_dnscrypt or use_i2p or use_blocker):
             raise ValueError("Select at least one privacy layer.")
 
         # Validate installations before touching anything
@@ -45,6 +47,12 @@ class ConnectionManager:
             self._i2p.start()
             self._layers["i2p"] = True
 
+        # Block websites if enabled
+        if use_blocker:
+            self._blk.configure()
+            self._blk.start()
+            self._layers["blocker"] = True
+
         # NixOS: route system DNS through the correct service.
         # DNSCrypt takes priority over Tor DNS when both are active.
         if is_nixos():
@@ -59,6 +67,8 @@ class ConnectionManager:
             self._nixos_restore_dns()
 
         self._fw.remove()
+
+        self._blk.stop()
 
         if self._layers.get("i2p"):
             self._i2p.stop()

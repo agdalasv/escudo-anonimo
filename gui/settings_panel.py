@@ -3,7 +3,7 @@ from __future__ import annotations
 from PyQt6.QtWidgets import (
     QWidget, QFrame, QVBoxLayout, QHBoxLayout, QScrollArea,
     QPushButton, QLabel, QSpinBox, QLineEdit, QTabWidget,
-    QApplication, QSizePolicy,
+    QApplication, QSizePolicy, QTextEdit,
 )
 from PyQt6.QtCore import (
     Qt, QRect, QPropertyAnimation, QEasingCurve, pyqtSignal,
@@ -117,6 +117,7 @@ class SettingsPanel(QWidget):
         self._tabs.addTab(self._tab_tor(),      "TOR")
         self._tabs.addTab(self._tab_dnscrypt(), "DNSCRYPT")
         self._tabs.addTab(self._tab_i2p(),      "I2P")
+        self._tabs.addTab(self._tab_blocker(),  "BLOQUEO")
         self._tabs.addTab(self._tab_general(),  "GENERAL")
         return self._tabs
 
@@ -125,10 +126,10 @@ class SettingsPanel(QWidget):
         w.setFixedHeight(70)
         lay = QHBoxLayout(w)
         lay.setContentsMargins(20, 10, 20, 10)
-        save  = QPushButton("SAVE")
+        save  = QPushButton("GUARDAR")
         save.setObjectName("saveBtn")
         save.clicked.connect(self._on_save)
-        close = QPushButton("CANCEL")
+        close = QPushButton("CANCELAR")
         close.setObjectName("closeBtn")
         close.clicked.connect(self.close_panel)
         lay.addWidget(save)
@@ -181,14 +182,14 @@ class SettingsPanel(QWidget):
         self._tor_exit.setPlaceholderText("{de},{nl},{ch}")
         self._tor_strict = ToggleSwitch()
 
-        lay.addWidget(self._section("TOR NETWORK"))
-        lay.addLayout(self._row("Trans Port", self._tor_trans))
-        lay.addLayout(self._row("DNS Port", self._tor_dns))
-        lay.addLayout(self._row("SOCKS Port", self._tor_socks))
+        lay.addWidget(self._section("RED TOR"))
+        lay.addLayout(self._row("Puerto Trans", self._tor_trans))
+        lay.addLayout(self._row("Puerto DNS", self._tor_dns))
+        lay.addLayout(self._row("Puerto SOCKS", self._tor_socks))
         lay.addSpacing(8)
-        lay.addWidget(self._section("EXIT POLICY"))
-        lay.addLayout(self._row("Exit Nodes", self._tor_exit))
-        lay.addLayout(self._row("Strict Nodes", self._tor_strict))
+        lay.addWidget(self._section("POLÍTICA DE SALIDA"))
+        lay.addLayout(self._row("Nodos de Salida", self._tor_exit))
+        lay.addLayout(self._row("Nodos Estrictos", self._tor_strict))
         lay.addStretch()
         return w
 
@@ -203,13 +204,13 @@ class SettingsPanel(QWidget):
         self._dns_nolog   = ToggleSwitch(checked=True)
         self._dns_nofilter = ToggleSwitch(checked=True)
 
-        lay.addWidget(self._section("DNSCRYPT PROXY"))
-        lay.addLayout(self._row("Listen Port", self._dns_port))
+        lay.addWidget(self._section("PROXY DNSCRYPT"))
+        lay.addLayout(self._row("Puerto de Escucha", self._dns_port))
         lay.addSpacing(8)
-        lay.addWidget(self._section("SERVER FILTERS"))
-        lay.addLayout(self._row("Require DNSSEC", self._dns_dnssec))
-        lay.addLayout(self._row("No-Log Only", self._dns_nolog))
-        lay.addLayout(self._row("No-Filter Only", self._dns_nofilter))
+        lay.addWidget(self._section("FILTROS DE SERVIDOR"))
+        lay.addLayout(self._row("Requerir DNSSEC", self._dns_dnssec))
+        lay.addLayout(self._row("Solo Sin Registro", self._dns_nolog))
+        lay.addLayout(self._row("Solo Sin Filtro", self._dns_nofilter))
         lay.addStretch()
         return w
 
@@ -223,14 +224,97 @@ class SettingsPanel(QWidget):
         self._i2p_socks = self._spinbox()
         self._i2p_bw    = self._spinbox(lo=0)
 
-        lay.addWidget(self._section("I2P DAEMON"))
-        lay.addLayout(self._row("HTTP Proxy Port", self._i2p_http))
-        lay.addLayout(self._row("SOCKS Port", self._i2p_socks))
+        lay.addWidget(self._section("DAEMON I2P"))
+        lay.addLayout(self._row("Puerto Proxy HTTP", self._i2p_http))
+        lay.addLayout(self._row("Puerto SOCKS", self._i2p_socks))
         lay.addSpacing(8)
-        lay.addWidget(self._section("BANDWIDTH"))
-        lay.addLayout(self._row("Max KB/s  (0=∞)", self._i2p_bw))
+        lay.addWidget(self._section("ANCHO DE BANDA"))
+        lay.addLayout(self._row("Máx KB/s  (0=∞)", self._i2p_bw))
         lay.addStretch()
         return w
+
+    def _tab_blocker(self) -> QWidget:
+        w = QWidget()
+        lay = QVBoxLayout(w)
+        lay.setContentsMargins(20, 16, 20, 16)
+        lay.setSpacing(14)
+
+        self._blocker_toggle = ToggleSwitch(checked=cfg().get("blocker", "enabled"))
+        enable_row = QHBoxLayout()
+        enable_lbl = QLabel("Bloqueo activo")
+        enable_lbl.setObjectName("settingLabel")
+        enable_row.addWidget(enable_lbl)
+        enable_row.addStretch()
+        enable_row.addWidget(self._blocker_toggle)
+        lay.addLayout(enable_row)
+        lay.addSpacing(8)
+
+        sites_lbl = QLabel("SITIOS BLOQUEADOS")
+        sites_lbl.setObjectName("settingSection")
+        lay.addWidget(sites_lbl)
+
+        self._sites_input = QLineEdit()
+        self._sites_input.setPlaceholderText("ejemplo.com, otro.com")
+        self._sites_input.setObjectName("sitesInput")
+        lay.addWidget(self._sites_input)
+
+        add_btn = QPushButton("+ Agregar")
+        add_btn.setObjectName("addSiteBtn")
+        add_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        add_btn.clicked.connect(self._add_site)
+        lay.addWidget(add_btn)
+
+        self._sites_list = QTextEdit()
+        self._sites_list.setReadOnly(True)
+        self._sites_list.setMaximumHeight(80)
+        self._sites_list.setObjectName("sitesList")
+        lay.addWidget(self._sites_list)
+
+        lay.addSpacing(8)
+        pass_lbl = QLabel("CONTRASEÑA DE DESBLOQUEO")
+        pass_lbl.setObjectName("settingSection")
+        lay.addWidget(pass_lbl)
+
+        pass_row = QHBoxLayout()
+        self._blocker_pass = QLineEdit()
+        self._blocker_pass.setEchoMode(QLineEdit.EchoMode.Password)
+        self._blocker_pass.setPlaceholderText("Nueva contraseña")
+        self._blocker_pass.setObjectName("blockerPass")
+        pass_row.addWidget(self._blocker_pass)
+
+        show_btn = QPushButton("👁")
+        show_btn.setObjectName("showPassBtn")
+        show_btn.setFixedSize(32, 28)
+        show_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        show_btn.clicked.connect(self._toggle_password_visibility)
+        pass_row.addWidget(show_btn)
+        lay.addLayout(pass_row)
+
+        lay.addStretch()
+        return w
+
+    def _add_site(self) -> None:
+        sites_text = self._sites_input.text().strip()
+        if not sites_text:
+            return
+        sites = [s.strip() for s in sites_text.split(",") if s.strip()]
+        current = list(cfg().get("blocker", "sites"))
+        for s in sites:
+            if s not in current:
+                current.append(s)
+        cfg().set("blocker", "sites", current)
+        self._sites_input.clear()
+        self._update_sites_list()
+
+    def _update_sites_list(self) -> None:
+        sites = cfg().get("blocker", "sites")
+        self._sites_list.setText("\n".join(sites) if sites else "(Sin sitios)")
+
+    def _toggle_password_visibility(self) -> None:
+        if self._blocker_pass.echoMode() == QLineEdit.EchoMode.Password:
+            self._blocker_pass.setEchoMode(QLineEdit.EchoMode.Normal)
+        else:
+            self._blocker_pass.setEchoMode(QLineEdit.EchoMode.Password)
 
     def _tab_general(self) -> QWidget:
         w = QWidget()
@@ -241,19 +325,46 @@ class SettingsPanel(QWidget):
         self._theme_toggle = ToggleSwitch(checked=(cfg().get("theme") == "dark"))
 
         theme_row = QHBoxLayout()
-        dark_lbl  = QLabel("DARK")
+        dark_lbl  = QLabel("OSCURO")
         dark_lbl.setObjectName("settingLabel")
-        light_lbl = QLabel("LIGHT")
+        light_lbl = QLabel("CLARO")
         light_lbl.setObjectName("settingLabel")
         theme_row.addWidget(dark_lbl)
         theme_row.addWidget(self._theme_toggle)
         theme_row.addWidget(light_lbl)
         theme_row.addStretch()
 
-        lay.addWidget(self._section("APPEARANCE"))
+        lay.addWidget(self._section("APARIENCIA"))
         lay.addLayout(theme_row)
+        lay.addSpacing(16)
+
+        donate_lbl = QLabel("INVITA UNA TAZA DE CAFÉ")
+        donate_lbl.setObjectName("settingSection")
+        lay.addWidget(donate_lbl)
+
+        coffee_row = QHBoxLayout()
+        coffee_row.setSpacing(8)
+        btc_lbl = QLabel("₿ BTC:")
+        btc_lbl.setObjectName("settingLabel")
+        self._btc_input = QLineEdit("3L8f3v6BWwL7KBcb8AMZQ2bpE3ACne2EUf")
+        self._btc_input.setReadOnly(True)
+        self._btc_input.setObjectName("btcInput")
+        copy_btn = QPushButton("📋")
+        copy_btn.setObjectName("copyBtn")
+        copy_btn.setFixedSize(32, 28)
+        copy_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        copy_btn.clicked.connect(self._copy_btc)
+        coffee_row.addWidget(btc_lbl)
+        coffee_row.addWidget(self._btc_input)
+        coffee_row.addWidget(copy_btn)
+        lay.addLayout(coffee_row)
+
         lay.addStretch()
         return w
+
+    def _copy_btc(self) -> None:
+        clipboard = QApplication.clipboard()
+        clipboard.setText(self._btc_input.text())
 
     # ── populate / save ───────────────────────────────────────
 
@@ -273,6 +384,9 @@ class SettingsPanel(QWidget):
         self._i2p_socks.setValue(cfg().get("i2p", "socks_port"))
         self._i2p_bw.setValue(cfg().get("i2p", "max_bandwidth"))
 
+        self._blocker_toggle.setChecked(cfg().get("blocker", "enabled"), silent=True)
+        self._update_sites_list()
+
         self._theme_toggle.setChecked(cfg().get("theme") == "dark", silent=True)
 
     def _on_save(self) -> None:
@@ -290,6 +404,10 @@ class SettingsPanel(QWidget):
         cfg().set("i2p", "http_port",     self._i2p_http.value())
         cfg().set("i2p", "socks_port",    self._i2p_socks.value())
         cfg().set("i2p", "max_bandwidth", self._i2p_bw.value())
+
+        cfg().set("blocker", "enabled", self._blocker_toggle.isChecked())
+        if self._blocker_pass.text():
+            cfg().set("blocker", "password", self._blocker_pass.text())
 
         theme_name = "dark" if self._theme_toggle.isChecked() else "light"
         cfg().set("theme", theme_name)

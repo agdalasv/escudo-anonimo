@@ -11,9 +11,9 @@ from .platform import is_nixos
 _CONFIG_PATHS = [
     "/etc/i2pd/i2pd.conf",
     "/etc/i2p/i2p.conf",
+    "/var/lib/i2pd/i2pd.conf",
 ]
 _BAK_SUFFIX  = ".entropy-shield.bak"
-_TOR_PROXY   = "ntcpproxy = socks://127.0.0.1:9050\n"
 _TOR_MARKER  = "# entropy-shield-tor-proxy"
 
 
@@ -22,7 +22,6 @@ class I2PManager:
         self._log = log
         self._config: str | None = None
         self._was_active: bool = False
-        self._tor_injected: bool = False
 
     def is_installed(self) -> bool:
         return bool(shutil.which("i2pd") or shutil.which("i2prouter"))
@@ -39,20 +38,6 @@ class I2PManager:
             return
 
         self._config = self._find_config()
-
-        if use_tor:
-            bak = self._config + _BAK_SUFFIX
-            if not os.path.exists(bak):
-                shutil.copy2(self._config, bak)
-
-            with open(self._config, "r") as f:
-                content = f.read()
-
-            if _TOR_MARKER not in content:
-                with open(self._config, "a") as f:
-                    f.write(f"\n{_TOR_MARKER}\n{_TOR_PROXY}")
-                self._tor_injected = True
-
         self._log("[I2P] i2pd configured.")
 
     def start(self) -> None:
@@ -72,13 +57,6 @@ class I2PManager:
         if is_nixos():
             self._log("[I2P] i2pd stopped.")
             return
-
-        if self._config and self._tor_injected:
-            bak = self._config + _BAK_SUFFIX
-            if os.path.exists(bak):
-                shutil.copy2(bak, self._config)
-                os.unlink(bak)
-            self._tor_injected = False
 
         if self._was_active:
             subprocess.run(["systemctl", "start", "i2pd"], capture_output=True)

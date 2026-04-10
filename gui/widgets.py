@@ -122,10 +122,10 @@ class Spinner(QWidget):
 # ──────────────────────────────────────────────────────────────
 
 _RING_COLORS = {
-    "off":        (210, 55,  48),
-    "connecting": (210, 153, 50),
-    "on":         (44,  186, 92),
-    "error":      (210, 55,  48),
+    "off":        (126, 181, 255),  # azul
+    "connecting": (255, 255, 255),  # blanco
+    "on":         (44,  186, 92),   # verde
+    "error":      (210, 55,  48),   # rojo
 }
 
 
@@ -214,9 +214,10 @@ class StatusRing(QWidget):
 # ──────────────────────────────────────────────────────────────
 
 _CARD_META: dict[str, tuple[str, str]] = {
-    "tor":      ("TOR",      "Onion routing"),
-    "dnscrypt": ("DNSCRYPT", "Encrypted DNS"),
-    "i2p":      ("I2P",      "P2P overlay"),
+    "tor":      ("TOR",      "Enrutamiento onion"),
+    "dnscrypt": ("DNSCRYPT", "DNS encriptado"),
+    "i2p":      ("I2P",      "Red overlay P2P"),
+    "blocker":  ("BLOQUEO",  "Bloquea sitios web"),
 }
 
 # Service-specific accent colors (r, g, b)
@@ -224,6 +225,7 @@ _CARD_COLORS: dict[str, tuple[int, int, int]] = {
     "tor":      (138, 110, 210),   # purple
     "dnscrypt": ( 78, 182, 255),   # blue
     "i2p":      ( 78, 210, 160),   # teal
+    "blocker":  (210, 55,  48),    # red
 }
 
 
@@ -295,7 +297,7 @@ class ServiceCard(QFrame):
 
         self._dot    = QLabel("●")
         self._dot.setObjectName("cardDot")
-        self._status = QLabel("READY")
+        self._status = QLabel("LISTO")
         self._status.setObjectName("cardStatus")
 
         gear = QPushButton("⚙")
@@ -322,12 +324,12 @@ class ServiceCard(QFrame):
 
     def set_status(self, state: str) -> None:
         labels = {
-            "active":     "ACTIVE",
-            "connecting": "WAIT",
+            "active":     "ACTIVO",
+            "connecting": "ESPERA",
             "error":      "ERROR",
-            "":           "READY",
+            "":           "LISTO",
         }
-        self._status.setText(labels.get(state, "READY"))
+        self._status.setText(labels.get(state, "LISTO"))
         for w in (self._dot, self._status):
             w.setProperty("state", state)
             w.style().unpolish(w)
@@ -344,4 +346,5 @@ _SERVICE_ICON: dict[str, str] = {
     "tor":      "⬡",
     "dnscrypt": "⊕",
     "i2p":      "◈",
+    "blocker":  "⛔",
 }

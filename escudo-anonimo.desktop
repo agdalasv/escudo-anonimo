@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Escudo Anónimo
+Comment=Privacy network wrapper (Tor + DNSCrypt + I2P + Blocker)
+Exec=pkexec python3 /opt/escudo-anonimo/main.py
+Icon=/opt/escudo-anonimo/logos/entropy-logo.png
+Terminal=false
+Type=Application
+Categories=Network;Security;
+Keywords=tor;vpn;privacy;匿名;i2p;dns;
+StartupNotify=true
